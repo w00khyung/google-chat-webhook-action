@@ -1,0 +1,31 @@
+name: 'Google Chat Webhook Notification'
+description: 'Send GitHub Actions notifications to Google Chat using cardsV2 format'
+author: 'Your Username'
+branding:
+  icon: 'message-circle'
+  color: 'blue'
+
+inputs:
+  webhook_url:
+    description: 'Google Chat Webhook URL'
+    required: true
+  title:
+    description: 'Notification title'
+    required: true
+    default: 'GitHub Action Notification'
+  subtitle:
+    description: 'Notification subtitle'
+    required: false
+    default: ''
+  text:
+    description: 'Plain text message (optional)'
+    required: false
+    default: ''
+  github_token:
+    description: 'GitHub token for API access'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

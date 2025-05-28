@@ -1,0 +1,67 @@
+name: Google Chat Notification Example
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  notify-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send deployment start notification
+        uses: ./
+        with:
+          webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
+          title: '🚀 배포 시작: ${{ github.repository }}'
+          text: '배포가 시작되었습니다 <users/all>'
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: notify-start
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  notify-success:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: success()
+    steps:
+      - name: Send success notification
+        uses: ./
+        with:
+          webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
+          title: '✅ 배포 성공: ${{ github.repository }}'
+          subtitle: '모든 작업이 성공적으로 완료되었습니다'
+          text: '배포가 성공적으로 완료되었습니다! 🎉'
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: failure()
+    steps:
+      - name: Send failure notification
+        uses: ./
+        with:
+          webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
+          title: '❌ 배포 실패: ${{ github.repository }}'
+          subtitle: '배포 중 문제가 발생했습니다'
+          text: '배포에 실패했습니다. 확인이 필요합니다 <users/all>'
