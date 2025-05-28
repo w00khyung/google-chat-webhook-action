@@ -1,18 +1,19 @@
 # Google Chat Webhook Action
 
-Google Chat으로 GitHub Actions 알림을 cardsV2 형식으로 전송하는 액션입니다.
+A GitHub Action that sends GitHub Actions notifications to Google Chat using cardsV2 format.
 
-## 기능
+## Features
 
-- 🔔 GitHub Actions 실행 시 Google Chat으로 자동 알림
-- 📱 cardsV2 형식의 아름다운 카드 메시지
-- 🔗 레포지토리, 액션 실행, 커밋으로 바로 이동할 수 있는 버튼
-- 📝 커밋 메시지가 자동으로 부제목으로 표시
-- ⚙️ 커스터마이징 가능한 제목과 메시지
+- 🔔 Automatic Google Chat notifications when GitHub Actions run
+- 📱 Beautiful card messages in cardsV2 format
+- 🔗 Buttons for direct navigation to repository, action run, and commit
+- 📝 Commit message automatically displayed as subtitle
+- ⚙️ Customizable title and message
+- 💪 Written in TypeScript for better type safety
 
-## 사용법
+## Usage
 
-### 기본 사용법
+### Basic Usage
 
 ```yaml
 name: Google Chat Notification
@@ -30,21 +31,21 @@ jobs:
         uses: w00khyung/google-chat-webhook-action@v1
         with:
           webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
-          title: '배포 시작: ${{ github.repository }}'
+          title: 'Deployment Started: ${{ github.repository }}'
 ```
 
-### 고급 사용법
+### Advanced Usage
 
 ```yaml
 - name: Send custom notification
   uses: w00khyung/google-chat-webhook-action@v1
   with:
     webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
-    title: '🚀 배포 완료'
-    text: '배포가 완료되었습니다 <users/all>'
+    title: '🚀 Deployment Complete'
+    text: 'Deployment has been completed <users/all>'
 ```
 
-### 실패 시 알림
+### Failure Notification
 
 ```yaml
 - name: Notify failure
@@ -52,64 +53,64 @@ jobs:
   uses: w00khyung/google-chat-webhook-action@v1
   with:
     webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
-    title: '❌ 배포 실패'
-    text: '배포에 실패했습니다. 확인이 필요합니다.'
+    title: '❌ Deployment Failed'
+    text: 'Deployment failed. Please check the logs.'
 ```
 
-## 입력 매개변수
+## Input Parameters
 
-| 매개변수       | 필수 | 기본값                       | 설명                    |
-| -------------- | ---- | ---------------------------- | ----------------------- |
-| `webhook_url`  | ✅   | -                            | Google Chat Webhook URL |
-| `title`        | ❌   | `GitHub Action Notification` | 알림 제목               |
-| `text`         | ❌   | `""`                         | 플레인 텍스트 메시지    |
-| `github_token` | ❌   | `${{ github.token }}`        | GitHub API 토큰         |
+| Parameter      | Required | Default                      | Description             |
+| -------------- | -------- | ---------------------------- | ----------------------- |
+| `webhook_url`  | ✅       | -                            | Google Chat Webhook URL |
+| `title`        | ❌       | `GitHub Action Notification` | Notification title      |
+| `text`         | ❌       | `""`                         | Plain text message      |
+| `github_token` | ❌       | `${{ github.token }}`        | GitHub API token        |
 
-## Google Chat Webhook URL 설정
+## Setting up Google Chat Webhook URL
 
-1. Google Chat에서 스페이스를 선택합니다
-2. 스페이스 이름 옆의 ▼를 클릭하고 "앱 및 통합 관리"를 선택합니다
-3. "Webhook 추가"를 클릭합니다
-4. 이름과 아바타를 설정하고 "저장"을 클릭합니다
-5. 생성된 Webhook URL을 복사합니다
-6. GitHub 레포지토리의 Settings > Secrets and variables > Actions에서 `GOOGLE_CHAT_WEBHOOK_URL`로 추가합니다
+1. Select a space in Google Chat
+2. Click the ▼ next to the space name and select "Manage webhooks"
+3. Click "Add webhook"
+4. Set a name and avatar, then click "Save"
+5. Copy the generated Webhook URL
+6. Add it as `GOOGLE_CHAT_WEBHOOK_URL` in your GitHub repository's Settings > Secrets and variables > Actions
 
-## 메시지 형식
+## Message Format
 
-이 액션은 다음과 같은 정보를 포함한 카드를 생성합니다:
+This action creates cards containing the following information:
 
-### 헤더
+### Header
 
-- 제목 (title)
-- 부제목 (자동으로 커밋 메시지 사용)
-- GitHub 로고
+- Title (custom or default)
+- Subtitle (automatically uses commit message)
+- GitHub logo
 
-### 레포지토리 정보
+### Repository Information
 
-- 레포지토리 이름
-- 브랜치 이름
-- 워크플로우 이름
-- 바로가기 버튼 (레포지토리, 액션 실행, 커밋)
+- Repository name
+- Branch name
+- Workflow name
+- Quick action buttons (repository, action run, commit)
 
-### 실행 정보
+### Execution Information
 
-- 작성자 이름
-- 커밋 SHA (앞 7자리)
+- Author name
+- Commit SHA (first 7 characters)
 
-## 예시 출력
+## Example Output
 
-생성되는 Google Chat 메시지는 다음과 같은 형태입니다:
+The generated Google Chat message looks like this:
 
 ```json
 {
-  "text": "배포 시작: myorg/myrepo",
+  "text": "Deployment Started: myorg/myrepo",
   "cardsV2": [
     {
       "cardId": "github-action-notification",
       "card": {
         "header": {
-          "title": "배포 시작: myorg/myrepo",
-          "subtitle": "fix: Google Chat 알림 기능 추가",
+          "title": "Deployment Started: myorg/myrepo",
+          "subtitle": "fix: Add Google Chat notification feature",
           "imageUrl": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
           "imageType": "CIRCLE",
           "imageAltText": "GitHub Logo"
@@ -121,18 +122,57 @@ jobs:
 }
 ```
 
-## 라이선스
+## Development
+
+This project is written in TypeScript. To contribute:
+
+### Prerequisites
+
+- Node.js 20+
+- npm
+
+### Setup
+
+```bash
+npm install
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Test
+
+```bash
+npm test
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Type Check
+
+```bash
+npm run type-check
+```
+
+## License
 
 MIT License
 
-## 기여하기
+## Contributing
 
-1. 이 레포지토리를 포크합니다
-2. 피처 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`)
-3. 변경사항을 커밋합니다 (`git commit -m 'Add some amazing feature'`)
-4. 브랜치에 푸시합니다 (`git push origin feature/amazing-feature`)
-5. Pull Request를 생성합니다
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
 
-## 지원
+## Support
 
-문제가 있거나 기능 요청이 있으시면 [Issues](https://github.com/w00khyung/google-chat-webhook-action/issues)에 등록해주세요.
+If you have any issues or feature requests, please create an [Issue](https://github.com/w00khyung/google-chat-webhook-action/issues).

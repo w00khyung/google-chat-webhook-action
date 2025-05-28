@@ -1,20 +1,25 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const axios = require('axios');
+import * as core from '@actions/core';
+import { context as githubContext } from '@actions/github';
+import type { GitHubContextWithPayload, GoogleChatMessage } from './types';
 
 /**
  * Create Google Chat cardsV2 message
- * @param {Object} context - GitHub context
- * @param {string} title - Message title
- * @param {string} text - Plain text message
- * @returns {Object} Google Chat message object
+ * @param context - GitHub context
+ * @param title - Message title
+ * @param text - Plain text message
+ * @returns Google Chat message object
  */
-function createChatMessage(context, title, subtitle, text) {
+function createChatMessage(
+  context: GitHubContextWithPayload,
+  title: string,
+  subtitle: string,
+  text: string
+): GoogleChatMessage {
   const { payload, ref, sha, actor, repo, workflow, runId } = context;
 
   // Extract commit info
-  const commitMessage = payload.head_commit?.message || subtitle || '';
-  const authorName = payload.head_commit?.author?.name || actor || 'Unknown';
+  const commitMessage = payload.head_commit?.message ?? subtitle ?? '';
+  const authorName = payload.head_commit?.author?.name ?? actor ?? 'Unknown';
   const repoFullName = `${repo.owner}/${repo.repo}`;
   const branchName = ref;
 
@@ -24,7 +29,7 @@ function createChatMessage(context, title, subtitle, text) {
   const commitUrl = `https://github.com/${repoFullName}/commit/${sha}`;
 
   // Create cardsV2 message
-  const message = {
+  const message: GoogleChatMessage = {
     text: text || title,
     cardsV2: [
       {
@@ -39,7 +44,7 @@ function createChatMessage(context, title, subtitle, text) {
           },
           sections: [
             {
-              header: '레포지토리 정보',
+              header: 'Repository Information',
               widgets: [
                 {
                   decoratedText: {
@@ -55,7 +60,7 @@ function createChatMessage(context, title, subtitle, text) {
                     startIcon: {
                       knownIcon: 'TICKET',
                     },
-                    topLabel: '브랜치',
+                    topLabel: 'Branch',
                     text: branchName,
                   },
                 },
@@ -64,7 +69,7 @@ function createChatMessage(context, title, subtitle, text) {
                     startIcon: {
                       knownIcon: 'AIRPLANE',
                     },
-                    topLabel: '워크플로우',
+                    topLabel: 'Workflow',
                     text: workflow,
                   },
                 },
@@ -101,14 +106,14 @@ function createChatMessage(context, title, subtitle, text) {
               ],
             },
             {
-              header: '실행 정보',
+              header: 'Execution Information',
               widgets: [
                 {
                   decoratedText: {
                     startIcon: {
                       knownIcon: 'PERSON',
                     },
-                    topLabel: '작성자',
+                    topLabel: 'Author',
                     text: authorName,
                   },
                 },
@@ -117,7 +122,7 @@ function createChatMessage(context, title, subtitle, text) {
                     startIcon: {
                       knownIcon: 'STAR',
                     },
-                    topLabel: '커밋 SHA',
+                    topLabel: 'Commit SHA',
                     text: sha.substring(0, 7),
                   },
                 },
@@ -134,36 +139,43 @@ function createChatMessage(context, title, subtitle, text) {
 
 /**
  * Send message to Google Chat
- * @param {string} webhookUrl - Google Chat webhook URL
- * @param {Object} message - Message object
+ * @param webhookUrl - Google Chat webhook URL
+ * @param message - Message object
  */
-async function sendToGoogleChat(webhookUrl, message) {
+async function sendToGoogleChat(webhookUrl: string, message: GoogleChatMessage): Promise<unknown> {
   try {
-    const response = await axios.post(webhookUrl, message, {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(message),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     core.info(`Message sent successfully: ${response.status}`);
-    return response.data;
+    return await response.json();
   } catch (error) {
-    throw new Error(`Failed to send message to Google Chat: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to send message to Google Chat: ${errorMessage}`);
   }
 }
 
 /**
  * Main function
  */
-async function run() {
+async function run(): Promise<void> {
   try {
     // Get inputs
     const webhookUrl = core.getInput('webhook_url', { required: true });
     const title = core.getInput('title') || 'GitHub Action Notification';
 
     // Get GitHub context first to access commit message
-    const context = github.context;
-    const subtitle = context.payload.head_commit?.message || '';
+    const context = githubContext as GitHubContextWithPayload;
+    const subtitle = context.payload.head_commit?.message ?? '';
 
     const text = core.getInput('text') || '';
 
@@ -179,13 +191,14 @@ async function run() {
 
     core.info('Notification sent successfully!');
   } catch (error) {
-    core.setFailed(`Action failed: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    core.setFailed(`Action failed: ${errorMessage}`);
   }
 }
 
 // Run the action
 if (require.main === module) {
-  run();
+  void run();
 }
 
-module.exports = { run, createChatMessage, sendToGoogleChat };
+export { run, createChatMessage, sendToGoogleChat };
