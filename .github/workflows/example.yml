@@ -11,6 +11,9 @@ jobs:
   notify-start:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Send deployment start notification
         uses: ./
         with:
@@ -45,6 +48,9 @@ jobs:
     needs: build-and-deploy
     if: success()
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Send success notification
         uses: ./
         with:
@@ -58,6 +64,9 @@ jobs:
     needs: build-and-deploy
     if: failure()
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Send failure notification
         uses: ./
         with:

@@ -1,6 +1,6 @@
 name: 'Google Chat Webhook Notification'
 description: 'Send GitHub Actions notifications to Google Chat using cardsV2 format'
-author: 'Your Username'
+author: 'w00khyung'
 branding:
   icon: 'message-circle'
   color: 'blue'
