@@ -53,7 +53,7 @@ function createChatMessage(context, title, subtitle, text) {
                 {
                   decoratedText: {
                     startIcon: {
-                      knownIcon: 'BOOKMARK',
+                      knownIcon: 'TICKET',
                     },
                     topLabel: '브랜치',
                     text: branchName,
@@ -62,7 +62,7 @@ function createChatMessage(context, title, subtitle, text) {
                 {
                   decoratedText: {
                     startIcon: {
-                      knownIcon: 'BOOKMARK',
+                      knownIcon: 'AIRPLANE',
                     },
                     topLabel: '워크플로우',
                     text: workflow,
