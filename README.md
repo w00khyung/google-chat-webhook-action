@@ -7,6 +7,7 @@ Google Chat으로 GitHub Actions 알림을 cardsV2 형식으로 전송하는 액
 - 🔔 GitHub Actions 실행 시 Google Chat으로 자동 알림
 - 📱 cardsV2 형식의 아름다운 카드 메시지
 - 🔗 레포지토리, 액션 실행, 커밋으로 바로 이동할 수 있는 버튼
+- 📝 커밋 메시지가 자동으로 부제목으로 표시
 - ⚙️ 커스터마이징 가능한 제목과 메시지
 
 ## 사용법
@@ -40,7 +41,6 @@ jobs:
   with:
     webhook_url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
     title: '🚀 배포 완료'
-    subtitle: '프로덕션 환경에 성공적으로 배포되었습니다'
     text: '배포가 완료되었습니다 <users/all>'
 ```
 
@@ -62,7 +62,6 @@ jobs:
 | -------------- | ---- | ---------------------------- | ----------------------- |
 | `webhook_url`  | ✅   | -                            | Google Chat Webhook URL |
 | `title`        | ❌   | `GitHub Action Notification` | 알림 제목               |
-| `subtitle`     | ❌   | `""`                         | 알림 부제목             |
 | `text`         | ❌   | `""`                         | 플레인 텍스트 메시지    |
 | `github_token` | ❌   | `${{ github.token }}`        | GitHub API 토큰         |
 
@@ -82,7 +81,7 @@ jobs:
 ### 헤더
 
 - 제목 (title)
-- 부제목 (커밋 메시지 또는 subtitle)
+- 부제목 (자동으로 커밋 메시지 사용)
 - GitHub 로고
 
 ### 레포지토리 정보

@@ -6,7 +6,6 @@ const axios = require('axios');
  * Create Google Chat cardsV2 message
  * @param {Object} context - GitHub context
  * @param {string} title - Message title
- * @param {string} subtitle - Message subtitle
  * @param {string} text - Plain text message
  * @returns {Object} Google Chat message object
  */
@@ -161,11 +160,12 @@ async function run() {
     // Get inputs
     const webhookUrl = core.getInput('webhook_url', { required: true });
     const title = core.getInput('title') || 'GitHub Action Notification';
-    const subtitle = core.getInput('subtitle') || '';
-    const text = core.getInput('text') || '';
 
-    // Get GitHub context
+    // Get GitHub context first to access commit message
     const context = github.context;
+    const subtitle = context.payload.head_commit?.message || '';
+
+    const text = core.getInput('text') || '';
 
     core.info(`Sending notification: ${title}`);
     core.info(`Repository: ${context.repo.owner}/${context.repo.repo}`);

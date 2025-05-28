@@ -13,10 +13,6 @@ inputs:
     description: 'Notification title'
     required: true
     default: 'GitHub Action Notification'
-  subtitle:
-    description: 'Notification subtitle'
-    required: false
-    default: ''
   text:
     description: 'Plain text message (optional)'
     required: false
